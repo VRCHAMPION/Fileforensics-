@@ -1,0 +1,44 @@
+[project]
+name = "fileforensics"
+version = "1.0.0"
+description = "Static file forensics in the browser: magic-byte typing, spoofed extensions, entropy, IOCs, EXIF/GPS, PDF and Office red flags."
+authors = [{ name = "Krrish Bhanushali" }]
+license = { text = "MIT" }
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = [".venv", "venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "C4", "RUF"]
+ignore = [
+    "S101",    # assert is how pytest works
+    "RUF001",  # we deliberately handle look-alike unicode in filenames
+    "SIM108",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "E501", "B017"]
+"scripts/*" = ["S", "T201"]
+"app/analyzers/signatures.py" = ["E501"]  # the type table reads better one row per line
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = ["error::DeprecationWarning:app.*"]
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+
+[tool.bandit]
+exclude_dirs = ["tests", "scripts", ".venv", "venv"]
