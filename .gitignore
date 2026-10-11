@@ -1,0 +1,44 @@
+# virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# python caches and build output
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# tooling caches and reports
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+bandit-report.*
+
+# secrets / local config (none are needed, keep it that way)
+.env
+.env.*
+*.pem
+*.key
+
+# never commit evidence
+uploads/
+samples/
+corpus/
+*.malware
+*.infected
+
+# editors / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
