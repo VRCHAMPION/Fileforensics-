@@ -1,0 +1,5 @@
+# Runtime dependencies, pinned. Pillow is the only one with native code and ships wheels for Windows/macOS/Linux.
+fastapi==0.143.0
+uvicorn==0.54.0
+python-multipart==0.0.32
+pillow==12.3.0
