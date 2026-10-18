@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="FileForensics: drop a file, get a static forensic report. Nothing is executed or stored.">
+  <meta name="color-scheme" content="light">
+  <title>FileForensics · evidence intake</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/app.js" defer></script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead__inner">
+      <div class="brand">
+        <span class="brand__mark" aria-hidden="true">FF</span>
+        <div>
+          <p class="brand__name">FileForensics</p>
+          <p class="brand__sub">Static file examination unit</p>
+        </div>
+      </div>
+      <p class="masthead__meta mono">FORM FF-01 · REV 1.0 · <span id="clock">--:--:-- UTC</span></p>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="intake" id="intake" aria-labelledby="intake-title">
+      <div class="intake__copy">
+        <p class="kicker mono">Section A · Evidence intake</p>
+        <h1 id="intake-title">Drop a file. Get the facts about it.</h1>
+        <p class="lede">Real type from magic bytes, extension spoofing, hashes, entropy, strings and IOCs,
+          EXIF and GPS, PDF and Office red flags, data hiding after the end of the file. Everything runs
+          as static analysis in memory. Nothing is executed and nothing is kept.</p>
+      </div>
+
+      <label class="bag" id="dropzone" for="file-input">
+        <span class="bag__seal mono" aria-hidden="true">SEALED</span>
+        <span class="bag__stripe mono" aria-hidden="true">EVIDENCE · DO NOT TAMPER · EVIDENCE · DO NOT TAMPER</span>
+        <span class="bag__body">
+          <span class="bag__title">Drag a file here</span>
+          <span class="bag__hint">or <span class="link-like">choose one from your device</span></span>
+          <span class="bag__limits mono" id="limits">max 15 MB · one file · not stored</span>
+        </span>
+        <input type="file" id="file-input" name="file" class="visually-hidden">
+      </label>
+
+      <p class="status mono" id="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="casefile" id="report" hidden aria-label="Forensic report">
+      <div class="casefile__top">
+        <article class="tag" aria-label="Evidence tag">
+          <p class="tag__head mono">EVIDENCE</p>
+          <dl class="tag__fields">
+            <div><dt>Case no.</dt><dd class="mono" id="t-case"></dd></div>
+            <div><dt>Item</dt><dd class="mono tag__name" id="t-name"></dd></div>
+            <div><dt>Size</dt><dd class="mono" id="t-size"></dd></div>
+            <div><dt>SHA-256</dt><dd class="mono tag__hash" id="t-sha"></dd></div>
+            <div><dt>Logged</dt><dd class="mono" id="t-time"></dd></div>
+            <div><dt>Examiner</dt><dd class="mono" id="t-tool"></dd></div>
+          </dl>
+        </article>
+
+        <div class="verdict">
+          <div class="stamp" id="stamp">
+            <span class="stamp__label mono">Risk</span>
+            <span class="stamp__score" id="stamp-score">0</span>
+            <span class="stamp__level mono" id="stamp-level">clean</span>
+          </div>
+          <p class="verdict__type" id="verdict-type"></p>
+          <div class="actions">
+            <button type="button" class="btn" id="btn-download">Download JSON report</button>
+            <button type="button" class="btn btn--ghost" id="btn-reset">Examine another file</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="sheet" aria-labelledby="s-findings">
+        <h2 id="s-findings"><span class="sheet__no mono">01</span> Findings</h2>
+        <p class="note" id="findings-empty" hidden>No findings. Nothing in this file stood out to the static checks.</p>
+        <ol class="findings" id="findings"></ol>
+      </section>
+
+      <section class="sheet" aria-labelledby="s-ident">
+        <h2 id="s-ident"><span class="sheet__no mono">02</span> Identification</h2>
+        <dl class="kv" id="ident"></dl>
+        <ul class="evidence mono" id="ident-evidence"></ul>
+      </section>
+
+      <section class="sheet" aria-labelledby="s-hash">
+        <h2 id="s-hash"><span class="sheet__no mono">03</span> Hashes</h2>
+        <table class="hashes mono" id="hashes"><tbody></tbody></table>
+      </section>
+
+      <section class="sheet" aria-labelledby="s-hex">
+        <h2 id="s-hex"><span class="sheet__no mono">04</span> Exhibit A · first 256 bytes</h2>
+        <div class="hex mono" id="hex" role="img" aria-label="Hex dump of the first 256 bytes"></div>
+        <p class="caption mono">Highlighted bytes are the magic signature used for identification.</p>
+      </section>
+
+      <section class="sheet" aria-labelledby="s-ent">
+        <h2 id="s-ent"><span class="sheet__no mono">05</span> Exhibit B · entropy</h2>
+        <div class="chart">
+          <canvas id="entropy-chart" width="800" height="200" aria-label="Entropy per block chart"></canvas>
+        </div>
+        <dl class="kv" id="entropy"></dl>
+      </section>
+
+      <section class="sheet" aria-labelledby="s-ioc">
+        <h2 id="s-ioc"><span class="sheet__no mono">06</span> Strings &amp; indicators</h2>
+        <dl class="kv" id="strings-summary"></dl>
+        <div class="iocs" id="iocs"></div>
+        <details class="strings">
+          <summary class="mono">Show extracted strings sample</summary>
+          <ol class="strings__list mono" id="strings-list"></ol>
+        </details>
+      </section>
+
+      <section class="sheet" id="sec-image" hidden aria-labelledby="s-img">
+        <h2 id="s-img"><span class="sheet__no mono">07</span> Image metadata</h2>
+        <dl class="kv" id="image"></dl>
+      </section>
+
+      <section class="sheet" id="sec-pdf" hidden aria-labelledby="s-pdf">
+        <h2 id="s-pdf"><span class="sheet__no mono">08</span> PDF structure</h2>
+        <div class="kwgrid mono" id="pdf-keywords"></div>
+        <dl class="kv" id="pdf"></dl>
+      </section>
+
+      <section class="sheet" id="sec-office" hidden aria-labelledby="s-office">
+        <h2 id="s-office"><span class="sheet__no mono">09</span> Office / archive contents</h2>
+        <dl class="kv" id="office"></dl>
+        <ul class="evidence mono" id="office-list"></ul>
+      </section>
+
+      <section class="sheet" aria-labelledby="s-struct">
+        <h2 id="s-struct"><span class="sheet__no mono">10</span> Structure &amp; chain of custody</h2>
+        <dl class="kv" id="structure"></dl>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Static analysis only. Files are processed in memory and discarded; no copy is kept.</p>
+    <p class="mono">Built by Krrish Bhanushali · <a href="https://github.com/VRCHAMPION" rel="noopener noreferrer">github.com/VRCHAMPION</a></p>
+  </footer>
+</body>
+</html>
