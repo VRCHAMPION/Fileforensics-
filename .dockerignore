@@ -1,0 +1,27 @@
+# only requirements.txt and app/ are needed in the build context
+.git
+.github
+.venv
+venv
+env
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.ruff_cache
+.coverage
+htmlcov
+tests
+scripts
+docs
+*.md
+LICENSE
+pyproject.toml
+requirements-dev.txt
+.env
+.env.*
+uploads
+samples
+.vscode
+.idea
+Dockerfile
+.dockerignore
