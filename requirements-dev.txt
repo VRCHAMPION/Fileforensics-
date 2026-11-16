@@ -3,6 +3,6 @@ pytest==9.2.0
 pytest-cov==7.1.0
 # Starlette 1.x's TestClient wants httpx2; plain httpx still works but warns.
 httpx2==2.16.0
-ruff==0.17.3
+ruff==0.17.5
 bandit==1.9.4
 pip-audit==2.10.1
